@@ -1,60 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Gracias por tu voto</title>
+    <style>
+        body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f4f4f9; text-align: center; }
+        main { background: white; padding: 2rem; border-radius: 10px; }
+        h1 { color: #333; margin-bottom: 0.5rem; }
+        h2 { color: #666; font-weight: normal; font-size: 1.2rem; }
+    </style>
 </head>
 <body>
     <main>
-        <h1>GRACIAS POR TU VOTO</h1>
+        <h1>VALORACIÓN RECIBIDA</h1>
         <h2 id="mensaje">Procesando valoración...</h2>
     </main>
 
     <script>
         window.onload = function() {
-            // Capturamos los datos de la URL
+            // 1. Capturamos los datos de la URL
             const params = new URLSearchParams(window.location.search);
             const voto = params.get('voto');
             const email = params.get('email');
-            const nombre = params.get('nombre') || "cliente"; // Fallback por si el nombre falla
+            const nombreRaw = params.get('nombre');
+            
+            // Si el nombre viene vacío o es "null", usamos "cliente"
+            const nombre = (nombreRaw && nombreRaw !== "null") ? nombreRaw : "cliente";
 
             const mensajeH2 = document.getElementById('mensaje');
 
-            // Definimos los mensajes personalizados
+            // 2. Definimos los mensajes personalizados
             const mensajesPersonalizados = {
-            '1': `1. Sentimos mucho tu experiencia, ${nombre}. Nos pondremos en contacto contigo pronto.`,
-            '2': `2. Lamentamos no haber estado a la altura, ${nombre}. Gracias por ayudarnos a mejorar.`,
-            '3': `3. Gracias por tu valoración, ${nombre}. Seguiremos trabajando para darte un mejor servicio.`,
-            '4': `4. ¡Muchas gracias, ${nombre}! Nos alegra que tu experiencia haya sido buena.`,
-            '5': `5. ¡Excelente! Mil gracias por tu confianza, ${nombre}. Nos motiva mucho tu valoración.`
+                '1': `Sentimos mucho tu experiencia, ${nombre}. Nos pondremos en contacto contigo pronto.`,
+                '2': `Lamentamos no haber estado a la altura, ${nombre}. Gracias por ayudarnos a mejorar.`,
+                '3': `Gracias por tu valoración, ${nombre}. Seguiremos trabajando para darte un mejor servicio.`,
+                '4': `¡Muchas gracias, ${nombre}! Nos alegra que tu experiencia haya sido buena.`,
+                '5': `¡Excelente! Mil gracias por tu confianza, ${nombre}. Nos motiva mucho tu valoración.`
             };
 
-            // Si tenemos los datos mínimos, ejecutamos
+            // 3. Verificamos que tenemos los datos necesarios
             if (email && voto) {
-            const googleURL = "https://script.google.com/macros/s/AKfycbzWn4zHreJIa_BvNRIjbr_ESKaiY8lAzDY3MSpQSGrnfYcohLsNAuY6Ayj80UsSU1Bv/exec";
-            
-            // Envío silencioso a Google Sheets
-            fetch(`${googleURL}?voto=${voto}&email=${email}&nombre=${nombre}`, {
-                method: 'GET',
-                mode: 'no-cors'
-            })
-            .then(() => {
-                // Cambiamos el texto del H2 según la puntuación
+                // URL DE EJECUCIÓN (Asegúrate de que sea la de "/exec")
+                const googleURL = "https://script.google.com/macros/s/AKfycbzWn4zHreJIa_BvNRIjbr_ESKaiY8lAzDY3MSpQSGrnfYcohLsNAuY6Ayj80UsSU1Bv/exec";
+                
+                // MÉTODO INFALIBLE: Enviamos los datos mediante una petición de imagen silenciosa
+                // Esto evita errores de CORS y asegura que el Sheet reciba los datos
+                const img = new Image();
+                img.src = `${googleURL}?voto=${encodeURIComponent(voto)}&email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombre)}&t=${new Date().getTime()}`;
+                
+                // 4. Cambiamos el texto del H2 inmediatamente para el usuario
                 if (mensajesPersonalizados[voto]) {
-                mensajeH2.innerText = mensajesPersonalizados[voto];
+                    mensajeH2.innerText = mensajesPersonalizados[voto];
                 } else {
-                mensajeH2.innerText = "¡Gracias por tu valoración!";
+                    mensajeH2.innerText = "¡Gracias por tu valoración!";
                 }
-            })
-            .catch(err => {
-                console.error("Error al registrar:", err);
-                mensajeH2.innerText = "Hubo un error, pero gracias por intentarlo.";
-            });
+                
+                console.log("Petición enviada a Google Sheets para:", email);
+
             } else {
-            mensajeH2.innerText = "Bienvenido a nuestra página de atención al cliente.";
+                // Si alguien entra en la web sin parámetros
+                mensajeH2.innerText = "Bienvenido a nuestra página de atención al cliente.";
             }
         };
-        </script>
+    </script>
 </body>
 </html>
