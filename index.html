@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <main>
+        <h1>GRACIAS POR TU VOTO</h1>
+        <h2 id="mensaje">Procesando valoración...</h2>
+    </main>
+
+    <script>
+        window.onload = function() {
+            // Capturamos los datos de la URL
+            const params = new URLSearchParams(window.location.search);
+            const voto = params.get('voto');
+            const email = params.get('email');
+            const nombre = params.get('nombre') || "cliente"; // Fallback por si el nombre falla
+
+            const mensajeH2 = document.getElementById('mensaje');
+
+            // Definimos los mensajes personalizados
+            const mensajesPersonalizados = {
+            '1': `1. Sentimos mucho tu experiencia, ${nombre}. Nos pondremos en contacto contigo pronto.`,
+            '2': `2. Lamentamos no haber estado a la altura, ${nombre}. Gracias por ayudarnos a mejorar.`,
+            '3': `3. Gracias por tu valoración, ${nombre}. Seguiremos trabajando para darte un mejor servicio.`,
+            '4': `4. ¡Muchas gracias, ${nombre}! Nos alegra que tu experiencia haya sido buena.`,
+            '5': `5. ¡Excelente! Mil gracias por tu confianza, ${nombre}. Nos motiva mucho tu valoración.`
+            };
+
+            // Si tenemos los datos mínimos, ejecutamos
+            if (email && voto) {
+            const googleURL = "https://script.google.com/macros/s/AKfycbzWn4zHreJIa_BvNRIjbr_ESKaiY8lAzDY3MSpQSGrnfYcohLsNAuY6Ayj80UsSU1Bv/exec";
+            
+            // Envío silencioso a Google Sheets
+            fetch(`${googleURL}?voto=${voto}&email=${email}&nombre=${nombre}`, {
+                method: 'GET',
+                mode: 'no-cors'
+            })
+            .then(() => {
+                // Cambiamos el texto del H2 según la puntuación
+                if (mensajesPersonalizados[voto]) {
+                mensajeH2.innerText = mensajesPersonalizados[voto];
+                } else {
+                mensajeH2.innerText = "¡Gracias por tu valoración!";
+                }
+            })
+            .catch(err => {
+                console.error("Error al registrar:", err);
+                mensajeH2.innerText = "Hubo un error, pero gracias por intentarlo.";
+            });
+            } else {
+            mensajeH2.innerText = "Bienvenido a nuestra página de atención al cliente.";
+            }
+        };
+        </script>
+</body>
+</html>
