@@ -4,18 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gracias por tu voto</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f4f4f9; text-align: center; }
-        main { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { color: #333; margin-bottom: 0.5rem; }
-        h2 { color: #666; font-weight: normal; font-size: 1.2rem; }
+        main { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 90%; max-width: 500px; }
+        h1 { color: #333; margin-bottom: 0.5rem; font-size: 1.5rem; }
+        h2 { color: #666; font-weight: normal; font-size: 1.1rem; line-height: 1.4; }
+        
+        /* Estilos para las estrellas */
+        .estrellas { margin: 1.5rem 0; font-size: 2rem; color: #ffc107; }
+        .fa-star { margin: 0 2px; }
     </style>
 </head>
 <body>
     <main>
         <h1>VALORACIÓN RECIBIDA</h1>
+        
+        <div id="contenedor-estrellas" class="estrellas"></div>
+
         <h2 id="mensaje">Procesando valoración...</h2>
-        <h3>VERSIÓN 3</h3>
     </main>
 
     <script>
@@ -25,13 +32,27 @@
             const email = params.get('email');
             const nombreCompleto = params.get('nombre');
             
-            // Limpieza visual para la WEB
             let soloNombre = "cliente";
             if (nombreCompleto && nombreCompleto !== "null") {
                 soloNombre = nombreCompleto.trim().split(" ")[0];
             }
 
             const mensajeH2 = document.getElementById('mensaje');
+            const contenedorEstrellas = document.getElementById('contenedor-estrellas');
+
+            // Lógica para pintar las estrellas
+            if (voto) {
+                const numVoto = parseInt(voto);
+                let estrellasHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    if (i <= numVoto) {
+                        estrellasHTML += '<i class="fa-solid fa-star"></i>'; // Estrella rellena
+                    } else {
+                        estrellasHTML += '<i class="fa-regular fa-star"></i>'; // Estrella vacía
+                    }
+                }
+                contenedorEstrellas.innerHTML = estrellasHTML;
+            }
 
             const mensajesPersonalizados = {
                 '1': `Sentimos mucho tu experiencia, ${soloNombre}. Nos pondremos en contacto pronto.`,
@@ -48,21 +69,21 @@
                 const img = new Image();
                 img.src = `${googleURL}?voto=${encodeURIComponent(voto)}&email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombreCompleto)}&t=${new Date().getTime()}`;
                 
-                // Mostrar mensaje personalizado
                 if (mensajesPersonalizados[voto]) {
                     mensajeH2.innerText = mensajesPersonalizados[voto];
                 } else {
                     mensajeH2.innerText = "¡Gracias por tu valoración!";
                 }
 
-                // --- MÉTODO DE LIMPIEZA DE URL ---
-                // Borra los parámetros (?voto=...&email=...) de la barra de direcciones
+                // Limpieza de URL
                 if (window.history.replaceState) {
                     const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
                     window.history.replaceState({}, document.title, cleanUrl);
                 }
 
-            } else {
+            } else if (!voto) {
+                // Si no hay voto, ocultamos el contenedor de estrellas
+                contenedorEstrellas.style.display = 'none';
                 mensajeH2.innerText = "Bienvenido a nuestra página de atención al cliente.";
             }
         };
