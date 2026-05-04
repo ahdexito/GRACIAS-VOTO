@@ -15,7 +15,7 @@
     <main>
         <h1>VALORACIÓN RECIBIDA</h1>
         <h2 id="mensaje">Procesando valoración...</h2>
-        <h3>VERSIÓN 1.0</h3>
+        <h3>VERSIÓN 2.0</h3>
     </main>
 
     <script>
@@ -25,7 +25,7 @@
             const email = params.get('email');
             const nombreCompleto = params.get('nombre'); // Recibe el nombre completo de la URL
             
-            // 1. Limpieza para la WEB: Solo el primer nombre
+            // Limpieza para la WEB: Solo el primer nombre
             let soloNombre = "cliente";
             if (nombreCompleto && nombreCompleto !== "null") {
                 soloNombre = nombreCompleto.trim().split(" ")[0];
@@ -45,7 +45,7 @@
             if (email && voto) {
                 const googleURL = "https://script.google.com/macros/s/AKfycbzWn4zHreJIa_BvNRIjbr_ESKaiY8lAzDY3MSpQSGrnfYcohLsNAuY6Ayj80UsSU1Bv/exec";
                 
-                // 3. Envío al SHEET: Se envía nombreCompleto (con apellidos)
+                // Envío al SHEET: Se envía nombreCompleto (con apellidos)
                 const img = new Image();
                 img.src = `${googleURL}?voto=${encodeURIComponent(voto)}&email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombreCompleto)}&t=${new Date().getTime()}`;
                 
@@ -58,6 +58,8 @@
                 mensajeH2.innerText = "Bienvenido a nuestra página de atención al cliente.";
             }
         };
+
+        window.history.replaceState({}, document.title, window.location.pathname);
     </script>
 </body>
 </html>
