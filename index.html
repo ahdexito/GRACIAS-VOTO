@@ -6,9 +6,9 @@
     <title>Gracias por tu voto</title>
     <style>
         body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f4f4f9; text-align: center; }
-        main { background: white; padding: 2rem; border-radius: 10px; }
+        main { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         h1 { color: #333; margin-bottom: 0.5rem; }
-        h2 { color: #666; font-weight: normal; font-size: 1.2rem; }
+        h2 { color: #666; font-weight: normal; font-size: 1.2rem; line-height: 1.5; max-width: 500px; }
     </style>
 </head>
 <body>
@@ -19,47 +19,51 @@
 
     <script>
         window.onload = function() {
-            // 1. Capturamos los datos de la URL
+            // Capturamos los datos de la URL (Cambiado a nombre_completo)
             const params = new URLSearchParams(window.location.search);
             const voto = params.get('voto');
             const email = params.get('email');
-            const nombreRaw = params.get('nombre');
+            const nombreCompleto = params.get('nombre_completo');
             
-            // Si el nombre viene vacío o es "null", usamos "cliente"
-            const nombre = (nombreRaw && nombreRaw !== "null") ? nombreRaw : "cliente";
+            // Lógica para extraer solo el primer nombre
+            let primerNombre = "cliente";
+            
+            if (nombreCompleto && nombreCompleto !== "null" && nombreCompleto.trim() !== "") {
+                // Dividimos por espacios y tomamos el primer elemento
+                primerNombre = nombreCompleto.trim().split(" ")[0];
+            }
 
             const mensajeH2 = document.getElementById('mensaje');
 
-            // 2. Definimos los mensajes personalizados
+            // Definimos los mensajes personalizados usando solo el primer nombre
             const mensajesPersonalizados = {
-                '1': `Sentimos mucho tu experiencia, ${nombre}. Nos pondremos en contacto contigo pronto.`,
-                '2': `Lamentamos no haber estado a la altura, ${nombre}. Gracias por ayudarnos a mejorar.`,
-                '3': `Gracias por tu valoración, ${nombre}. Seguiremos trabajando para darte un mejor servicio.`,
-                '4': `¡Muchas gracias, ${nombre}! Nos alegra que tu experiencia haya sido buena.`,
-                '5': `¡Excelente! Mil gracias por tu confianza, ${nombre}. Nos motiva mucho tu valoración.`
+                '1': `Sentimos mucho tu experiencia, ${primerNombre}. Nos pondremos en contacto contigo pronto.`,
+                '2': `Lamentamos no haber estado a la altura, ${primerNombre}. Gracias por ayudarnos a mejorar.`,
+                '3': `Gracias por tu valoración, ${primerNombre}. Seguiremos trabajando para darte un mejor servicio.`,
+                '4': `¡Muchas gracias, ${primerNombre}! Nos alegra que tu experiencia haya sido buena.`,
+                '5': `¡Excelente! Mil gracias por tu confianza, ${primerNombre}. Nos motiva mucho tu valoración.`
             };
 
-            // 3. Verificamos que tenemos los datos necesarios
+            // Verificamos datos y enviamos a Google
             if (email && voto) {
-                // URL DE EJECUCIÓN (Asegúrate de que sea la de "/exec")
                 const googleURL = "https://script.google.com/macros/s/AKfycbzWn4zHreJIa_BvNRIjbr_ESKaiY8lAzDY3MSpQSGrnfYcohLsNAuY6Ayj80UsSU1Bv/exec";
                 
-                // MÉTODO INFALIBLE: Enviamos los datos mediante una petición de imagen silenciosa
-                // Esto evita errores de CORS y asegura que el Sheet reciba los datos
+                // Enviamos el NOMBRE COMPLETO al Excel (para tener el dato profesional)
+                // Pero mostramos solo el PRIMER NOMBRE en pantalla (para cercanía)
                 const img = new Image();
-                img.src = `${googleURL}?voto=${encodeURIComponent(voto)}&email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombre)}&t=${new Date().getTime()}`;
+                const urlFinal = `${googleURL}?voto=${encodeURIComponent(voto)}&email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombreCompleto || "Cliente")}&t=${new Date().getTime()}`;
+                img.src = urlFinal;
                 
-                // 4. Cambiamos el texto del H2 inmediatamente para el usuario
+                // Cambiamos el texto del H2 inmediatamente
                 if (mensajesPersonalizados[voto]) {
                     mensajeH2.innerText = mensajesPersonalizados[voto];
                 } else {
                     mensajeH2.innerText = "¡Gracias por tu valoración!";
                 }
                 
-                console.log("Petición enviada a Google Sheets para:", email);
+                console.log("Datos enviados para:", email);
 
             } else {
-                // Si alguien entra en la web sin parámetros
                 mensajeH2.innerText = "Bienvenido a nuestra página de atención al cliente.";
             }
         };
