@@ -15,7 +15,7 @@
     <main>
         <h1>VALORACIÓN RECIBIDA</h1>
         <h2 id="mensaje">Procesando valoración...</h2>
-        <h3>VERSIÓN 2.0</h3>
+        <h3>VERSIÓN 3</h3>
     </main>
 
     <script>
@@ -23,9 +23,9 @@
             const params = new URLSearchParams(window.location.search);
             const voto = params.get('voto');
             const email = params.get('email');
-            const nombreCompleto = params.get('nombre'); // Recibe el nombre completo de la URL
+            const nombreCompleto = params.get('nombre');
             
-            // Limpieza para la WEB: Solo el primer nombre
+            // Limpieza visual para la WEB
             let soloNombre = "cliente";
             if (nombreCompleto && nombreCompleto !== "null") {
                 soloNombre = nombreCompleto.trim().split(" ")[0];
@@ -33,7 +33,6 @@
 
             const mensajeH2 = document.getElementById('mensaje');
 
-            // 2. Mensajes usando solo el primer nombre
             const mensajesPersonalizados = {
                 '1': `Sentimos mucho tu experiencia, ${soloNombre}. Nos pondremos en contacto pronto.`,
                 '2': `Lamentamos no haber estado a la altura, ${soloNombre}. Gracias por ayudarnos a mejorar.`,
@@ -45,21 +44,28 @@
             if (email && voto) {
                 const googleURL = "https://script.google.com/macros/s/AKfycbzWn4zHreJIa_BvNRIjbr_ESKaiY8lAzDY3MSpQSGrnfYcohLsNAuY6Ayj80UsSU1Bv/exec";
                 
-                // Envío al SHEET: Se envía nombreCompleto (con apellidos)
+                // Envío al SHEET
                 const img = new Image();
                 img.src = `${googleURL}?voto=${encodeURIComponent(voto)}&email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombreCompleto)}&t=${new Date().getTime()}`;
                 
+                // Mostrar mensaje personalizado
                 if (mensajesPersonalizados[voto]) {
                     mensajeH2.innerText = mensajesPersonalizados[voto];
                 } else {
                     mensajeH2.innerText = "¡Gracias por tu valoración!";
                 }
+
+                // --- MÉTODO DE LIMPIEZA DE URL ---
+                // Borra los parámetros (?voto=...&email=...) de la barra de direcciones
+                if (window.history.replaceState) {
+                    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                    window.history.replaceState({}, document.title, cleanUrl);
+                }
+
             } else {
                 mensajeH2.innerText = "Bienvenido a nuestra página de atención al cliente.";
             }
         };
-
-        window.history.replaceState({}, document.title, window.location.pathname);
     </script>
 </body>
 </html>
