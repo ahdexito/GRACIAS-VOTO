@@ -9,21 +9,24 @@
         @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
         * { margin: 0; padding: 0; }
         body { font-family: 'Poppins'; display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; background-image: url("pelota.jpg"); background-position: center; background-size: cover; }
-        main { background-color: #fff; border: 3px solid #fff; border-radius: 13px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); width: 90%; max-width: 800px; }
-        h1 { font-family: 'Oswald'; color: #fff; font-size: 3rem; line-height: 1.1em; border-radius: 10px 10px 0 0; background-color: #0c5635; border-bottom: 10px solid #02c268; padding: 15px; }
-        h2 { border-radius: 0 0 10px 10px; color: #000; font-weight: normal; font-size: 1.8rem; line-height: 1.4; margin-bottom: 50px; }
+        main { background-color: #fff; border: 3px solid #fff; border-radius: 13px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); width: 90%; max-width: 800px; overflow: hidden; }
+        h1 { font-family: 'Oswald'; color: #fff; font-size: 3rem; line-height: 1.1em; background-color: #0c5635; border-bottom: 10px solid #02c268; padding: 15px; }
+        h2 { color: #000; font-weight: normal; font-size: 1.8rem; line-height: 1.4; margin-bottom: 50px; }
         h3 { font-size: 1.3em; margin-bottom: 5px; }
         a { color: #02c268; }
-        .valoracion { padding: 20px; display: flex; align-items: center; justify-content: center; flex-direction: column; min-height: 200px; }
 
-        /* Estilos para las estrellas */
+        /* Adaptación colores email Summer Edition */
+        h1.summer { background-color: #00446d; border-color: #3ec1d3; }
+        a.summer { color: #3ec1d3; }
+        
+        .valoracion { padding: 20px; display: flex; align-items: center; justify-content: center; flex-direction: column; min-height: 200px; }
         .estrellas { margin-top: 20px; font-size: 3rem; color: #ffc107; text-shadow: #083b2499 2px 2px; }
         .fa-star { margin: 0 2px; }
     </style>
 </head>
 <body>
     <main>
-        <h1>VALORACIÓN RECIBIDA</h1>
+        <h1 id="titulo">VALORACIÓN RECIBIDA</h1>
         
         <div class="valoracion">
             <div id="contenedor-estrellas" class="estrellas"></div>
@@ -32,7 +35,7 @@
 
             <h3>¿Te gustaría aportar más detalles?</h3>
 
-            <p>En <b>Liga ProKids</b> valoramos mucho tu feedback. Si tienes alguna sugerencia específica para mejorar nuestro servicio, puedes escribirnos directamente a <b><a href="mailto:contactoligaprokids@gmail.com?subject=Feedback%20sobre%20mi%20valoracion&body=Hola,%20me%20gustaria%20añadir%20lo%20siguiente:">contactoligaprokids@gmail.com</a></b>.</p>
+            <p>En <b>Liga ProKids</b> valoramos mucho tu feedback. Si tienes alguna sugerencia específica para mejorar nuestro servicio, puedes escribirnos directamente a <b><a href="mailto:contactoligaprokids@gmail.com?subject=Feedback%20sobre%20mi%20valoracion&body=Hola,%20me%20gustaria%20añadir%20lo%20siguiente:" id="email">contactoligaprokids@gmail.com</a></b>.</p>
         </div>
     </main>
 
@@ -40,8 +43,14 @@
         window.onload = function() {
             const params = new URLSearchParams(window.location.search);
             const voto = params.get('voto');
-            const email = params.get('email');
+            const emailParam = params.get('email');
             const nombreCompleto = params.get('nombre');
+            const edicion = params.get('edicion');
+
+            if (edicion === 'summer') {
+                document.getElementById('titulo').classList.add('summer');
+                document.getElementById('email').classList.add('summer');
+            }
             
             let soloNombre = "cliente";
             if (nombreCompleto && nombreCompleto !== "null") {
@@ -51,15 +60,14 @@
             const mensajeH2 = document.getElementById('mensaje');
             const contenedorEstrellas = document.getElementById('contenedor-estrellas');
 
-            // Lógica para pintar las estrellas
             if (voto) {
                 const numVoto = parseInt(voto);
                 let estrellasHTML = '';
                 for (let i = 1; i <= 5; i++) {
                     if (i <= numVoto) {
-                        estrellasHTML += '<i class="fa-solid fa-star"></i>'; // Estrella rellena
+                        estrellasHTML += '<i class="fa-solid fa-star"></i>';
                     } else {
-                        estrellasHTML += '<i class="fa-regular fa-star"></i>'; // Estrella vacía
+                        estrellasHTML += '<i class="fa-regular fa-star"></i>';
                     }
                 }
                 contenedorEstrellas.innerHTML = estrellasHTML;
@@ -73,12 +81,11 @@
                 '5': `¡Excelente! Mil gracias por tu confianza, ${soloNombre}.`
             };
 
-            if (email && voto) {
+            if (emailParam && voto) {
                 const googleURL = "https://script.google.com/macros/s/AKfycbzWn4zHreJIa_BvNRIjbr_ESKaiY8lAzDY3MSpQSGrnfYcohLsNAuY6Ayj80UsSU1Bv/exec";
                 
-                // Envío al SHEET
                 const img = new Image();
-                img.src = `${googleURL}?voto=${encodeURIComponent(voto)}&email=${encodeURIComponent(email)}&nombre=${encodeURIComponent(nombreCompleto)}&t=${new Date().getTime()}`;
+                img.src = `${googleURL}?voto=${encodeURIComponent(voto)}&email=${encodeURIComponent(emailParam)}&nombre=${encodeURIComponent(nombreCompleto)}&t=${new Date().getTime()}`;
                 
                 if (mensajesPersonalizados[voto]) {
                     mensajeH2.innerText = mensajesPersonalizados[voto];
@@ -86,14 +93,12 @@
                     mensajeH2.innerText = "¡Gracias por tu valoración!";
                 }
 
-                // Limpieza de URL
                 if (window.history.replaceState) {
                     const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
                     window.history.replaceState({}, document.title, cleanUrl);
                 }
 
             } else if (!voto) {
-                // Si no hay voto, ocultamos el contenedor de estrellas
                 contenedorEstrellas.style.display = 'none';
                 mensajeH2.innerText = "Bienvenido a nuestra página de atención al cliente.";
             }
