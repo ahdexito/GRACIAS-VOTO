@@ -50,6 +50,8 @@
             if (edicion === 'summer') {
                 document.getElementById('titulo').classList.add('summer');
                 document.getElementById('email').classList.add('summer');
+            } else {
+                edicion = 'ordinaria'
             }
             
             let soloNombre = "cliente";
@@ -85,7 +87,7 @@
                 const googleURL = "https://script.google.com/macros/s/AKfycbzWn4zHreJIa_BvNRIjbr_ESKaiY8lAzDY3MSpQSGrnfYcohLsNAuY6Ayj80UsSU1Bv/exec";
                 
                 const img = new Image();
-                img.src = `${googleURL}?voto=${encodeURIComponent(voto)}&email=${encodeURIComponent(emailParam)}&nombre=${encodeURIComponent(nombreCompleto)}&t=${new Date().getTime()}`;
+                img.src = `${googleURL}?voto=${encodeURIComponent(voto)}&email=${encodeURIComponent(emailParam)}&nombre=${encodeURIComponent(nombreCompleto)}&edicion=${encodeURIComponent(edicion)}&t=${new Date().getTime()}`;
                 
                 if (mensajesPersonalizados[voto]) {
                     mensajeH2.innerText = mensajesPersonalizados[voto];
